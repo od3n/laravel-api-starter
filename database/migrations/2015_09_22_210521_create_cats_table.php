@@ -16,7 +16,8 @@ class CreateCatsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->tinyInteger('age');
-            $table->timestamps();
+            $table->nullableTimestamps();
+            $table->softDeletes();
         });
     }
 

@@ -7,6 +7,7 @@ use App\Http\Requests;
 use Illuminate\Http\Request;
 use Api\Requests\CatRequest;
 use Api\Transformers\CatTransformer;
+use ApiHandler;
 
 /**
  * @Resource('Cats', uri='/cats')
@@ -28,7 +29,16 @@ class CatController extends BaseController
      */
     public function index()
     {
-        return $this->collection(Cat::all(), new CatTransformer);
+        if (request('deleted_at-not') == 'null') {
+            $query = Cat::onlyTrashed();
+        } else if (request('deleted_at') == 'null') {
+            $query = new Cat();
+        } else {
+            $query = Cat::withTrashed();
+        }
+
+        $result = ApiHandler::parseMultiple($query, ['name', 'age']);
+        return $this->collection($result->getResult(), new CatTransformer)->setMeta($result->getHeaders());
     }
 
     /**
